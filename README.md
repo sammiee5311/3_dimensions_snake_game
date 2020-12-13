@@ -21,3 +21,5 @@ image_tracking with distorted images by using head pose(yaw, roll and pitch). <b
 + inner_base_width_end = width // 4 * 3
 + inner_base_height_start = height // 4
 + inner_base_height_ebd = height // 4 * 3
+
+### reference
