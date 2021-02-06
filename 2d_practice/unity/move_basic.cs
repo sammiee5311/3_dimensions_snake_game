@@ -10,40 +10,37 @@ public class move_basic : MonoBehaviour
 
 {
     Thread m_thread;
-    public string IP = "";
-    public int PORT = 12345;
     IPAddress localAdd;
     TcpListener listener;
     TcpClient client;
+
+    public string IP = "";
+    public int PORT = 12345;
+
     private bool is_moving;
     private Vector3 cur_pos, target_pos;
     private float time_to_move = 0.2f;
 
-    Vector3 received_pos = Vector3.zero;
-
     bool running;
+
+    Vector3 received_pos = Vector3.zero;
 
     void Update()
     {
         if (!is_moving)
         {
-            StartCoroutine(MovePlayer(received_pos));
+            StartCoroutine(move_player(received_pos));
         }
-
-/*        if (Input.GetKey(KeyCode.W) && !is_moving)
-            StartCoroutine(MovePlayer(Vector3.up));
-
-        if (Input.GetKey(KeyCode.A) && !is_moving)
-            StartCoroutine(MovePlayer(Vector3.left));
-
-        if (Input.GetKey(KeyCode.S) && !is_moving)
-            StartCoroutine(MovePlayer(Vector3.down));
-
-        if (Input.GetKey(KeyCode.D) && !is_moving)
-            StartCoroutine(MovePlayer(Vector3.right));*/
     }
 
-    private IEnumerator MovePlayer(Vector3 direction)
+    public void Start()
+    {
+        ThreadStart ts = new ThreadStart(get_info);
+        m_thread = new Thread(ts);
+        m_thread.Start();
+    }
+
+    private IEnumerator move_player(Vector3 direction)
     {
         is_moving = true;
 
@@ -64,14 +61,7 @@ public class move_basic : MonoBehaviour
         is_moving = false;
     }
 
-    public void Start()
-    {
-        ThreadStart ts = new ThreadStart(GetInfo);
-        m_thread = new Thread(ts);
-        m_thread.Start();
-    }
-
-    void GetInfo()
+    void get_info()
     {
         localAdd = IPAddress.Parse(IP);
         listener = new TcpListener(IPAddress.Any, PORT);
