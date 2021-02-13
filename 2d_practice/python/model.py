@@ -17,7 +17,7 @@ class Model(nn.Module):
 
         return x
 
-    def save(self, file_name='model1.pth'):
+    def save(self, file_name='model.pth'):
         PATH = './model'
 
         if not os.path.exists(PATH):

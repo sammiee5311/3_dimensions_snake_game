@@ -24,21 +24,16 @@ IP, PORT = '', 12345
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((IP, PORT))
 test = Test()
-received_data = None
+is_game = False
 
-while True:
+while not is_game:
     sleep(0.5)
-    if received_data:
-        state = list(map(int, received_data.split(',')))
-        choice = test.get_action(test.model, state)
-        pos_string = ','.join(map(str, choice))
-        print(state)
-    else:
-        start_pos = [1, 0, 0]
-        pos_string = ','.join(map(str, start_pos))
 
-    print(pos_string)
-
-    s.sendall(pos_string.encode('UTF-8'))
     received_data = s.recv(1024).decode('UTF-8')
-    print(received_data)
+    old_state = list(map(int, received_data.split(',')))
+    final_move = agent.get_action(old_state[:-2])
+    pos_string = ','.join(map(str, final_move))
+    s.sendall(pos_string.encode('UTF-8'))
+
+    if old_state[-2] == 1:
+        is_game = True

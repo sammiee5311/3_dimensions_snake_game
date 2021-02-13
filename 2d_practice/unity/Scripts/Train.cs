@@ -33,21 +33,17 @@ namespace SA
         List<Node> available_nodes = new List<Node>();
         List<Node_tail> tail = new List<Node_tail>();
 
-        bool up, down, left, right;
+        bool up, down, left, right=true;
 
         int current_score, highest_score;
 
-        bool move_player;
+        bool move_player, is_score;
 
         public bool is_gameover;
-        public bool is_first_input;
-        public float move_rate = 0.5f;
-        float timer;
 
-        Direction cur_direction, target_direction;
+        Direction cur_direction = Direction.RIGHT, target_direction;
 
         public Text current_score_text, highest_score_text;
-
 
         #region SOCKET
         Thread m_thread;
@@ -55,12 +51,12 @@ namespace SA
         TcpListener listener;
         TcpClient client;
 
-        public string IP = "";
-        public int PORT = 12345;
+        public string IP = "192.168.0.18";
+        public int PORT = 15402, episodes = 0;
 
         private Vector3 cur_pos, target_pos;
 
-        bool running, flag;
+        bool running = true;
 
         Vector3 received_direction = Vector3.zero;
         Vector3 v1 = new Vector3(1, 0, 0);
@@ -69,7 +65,10 @@ namespace SA
 
         public enum Direction
         {
-            right,down,left,up
+            RIGHT = 0, 
+            DOWN = 1, 
+            LEFT = 2, 
+            UP = 3
         }
 
         public UnityEvent on_start;
@@ -80,9 +79,7 @@ namespace SA
         #region Init
         private void Start()
         {
-            ThreadStart ts = new ThreadStart(get_info);
-            m_thread = new Thread(ts);
-            m_thread.Start();
+            get_info();
             on_start.Invoke();
         }
 
@@ -93,7 +90,7 @@ namespace SA
             place_player();
             place_camera();
             create_apple();
-            target_direction = Direction.right;
+            cur_direction = Direction.RIGHT;
             is_gameover = false;
             current_score = 0;
             update_score();
@@ -106,7 +103,7 @@ namespace SA
             if (player_obj != null)
                 Destroy(player_obj);
             if (fruit_object != null)
-                Destroy(fruit_object);
+                Destroy(fruit_object); 
             foreach (var t in tail)
             {
                 if(t.obj != null)
@@ -148,26 +145,13 @@ namespace SA
                     #region Visual
                     if (x % 2 != 0)
                     {
-                        if (y % 2 != 0)
-                        {
-                            txt.SetPixel(x, y, color1);
-                        }
-                        else
-                        {
-                            txt.SetPixel(x, y, color2);
-                        }
-
+                        if (y % 2 != 0) txt.SetPixel(x, y, color1);
+                        else txt.SetPixel(x, y, color2);
                     }
                     else
                     {
-                        if (y % 2 != 0)
-                        {
-                            txt.SetPixel(x, y, color2);
-                        }
-                        else
-                        {
-                            txt.SetPixel(x, y, color1);
-                        }
+                        if (y % 2 != 0) txt.SetPixel(x, y, color2);
+                        else txt.SetPixel(x, y, color1);
                     }
                     #endregion
                 }
@@ -219,186 +203,124 @@ namespace SA
 
         private void Update()
         {
-            if (is_gameover)
+            if (is_gameover || episodes > 4000)
             {
-                if (Input.GetKeyDown(KeyCode.R))
-                {
-                    on_start.Invoke();
-                }
-                return;
+                episodes = 0;
+                restart_game();
             }
 
-            get_input();
-
-            if (is_first_input)
-            {
-                set_player_direction();
-                timer += Time.deltaTime;
-                if (timer > move_rate)
-                {
-                    timer = 0;
-                    cur_direction = target_direction;
-                    /*received_direction;*/
-                    move_player_node(received_direction);
-                    /*move_player_node();*/
-                }
-            }
-            else{
-                if(up || down || left || right)
-                {
-                    is_first_input = true;
-                    first_input.Invoke();
-                }
-            }
+            move_player_node();
+            episodes++;
         }
 
-        void get_input()
+        public void get_direction()
         {
-            up = Input.GetButtonDown("Up");
-            down = Input.GetButtonDown("Down");
-            left = Input.GetButtonDown("Left");
-            right = Input.GetButtonDown("Right");
-        }
-
-        void set_player_direction()
-        {
-            if (up)
-            {
-                set_direction(Direction.up);
-            }
-            else if (down)
-            {
-                set_direction(Direction.down);
-            }
-            else if (left)
-            {
-                set_direction(Direction.left);
-            }
-            else if (right)
-            {
-                set_direction(Direction.right);
-            }
-        }
-
-        void set_direction(Direction d)
-        {
-            if (!is_opposite(d)) target_direction = d;
-        }
-
-        void move_player_node(Vector3 v)
-        {
-            string[] clock_wise = System.Enum.GetNames(typeof(Direction));
-            print(clock_wise[0]);
-            print(clock_wise[1]);
-            print(clock_wise[2]);
-            print(clock_wise[3]);
-            flag = true;
-
-            string new_dir;
-            int x = 0, y = 0, idx = -1;
+            up = false;
+            down = false;
+            right = false;
+            left = false;
 
             switch (cur_direction)
             {
-                case Direction.right:
-                    idx = 0;
+                case Direction.RIGHT:
+                    right = true;
                     break;
-                case Direction.down:
-                    idx = 1;
+                case Direction.DOWN:
+                    down = true;
                     break;
-                case Direction.left:
-                    idx = 2;
+                case Direction.LEFT:
+                    left = true;
                     break;
-                case Direction.up:
-                    idx = 3;
+                case Direction.UP:
+                    up = true;
                     break;
             }
+        }
 
-            if (v.Equals(v1))
-                new_dir = clock_wise[idx];
-            else if (v.Equals(v2)) {
+        void move_player_node()
+        {
+            send_data();
+            receive_data();
+
+            int x = 0, y = 0;
+
+            int idx = (int)cur_direction;
+
+            if (received_direction.Equals(v1))
+                cur_direction = (Direction)idx;
+
+            else if (received_direction.Equals(v2))
+            {
                 int next_idx = (idx + 1) % 4;
-                new_dir = clock_wise[next_idx];
+                if (next_idx == 4) next_idx = 0;
+                cur_direction = (Direction)next_idx;
             }
             else
             {
                 int next_idx = (idx - 1) % 4;
-                new_dir = clock_wise[next_idx];
+                if (next_idx == -1) next_idx = 3;
+                cur_direction = (Direction)next_idx;
             }
-
-            cur_direction = Direction.new_dir;
 
             switch (cur_direction)
             {
-                case Direction.up:
+                case Direction.UP:
                     y = 1;
                     break;
-                case Direction.down:
+                case Direction.DOWN:
                     y = -1;
                     break;
-                case Direction.left:
+                case Direction.LEFT:
                     x = -1;
                     break;
-                case Direction.right:
+                case Direction.RIGHT:
                     x = 1;
                     break;
             }
 
-            Node target_node = get_node(player_node.x + x, player_node.y + y);
-            
-
-            if(target_node == null)
-            {
-                on_gameover.Invoke();
-            }
+            if (is_collision(player_node.x + x, player_node.y + y))
+                is_gameover = true;
             else
             {
-                if (is_tail_node(target_node)){
-                    on_gameover.Invoke();
-                }
-                else
+                Node target_node = get_node(player_node.x + x, player_node.y + y);
+
+                is_score = false;
+
+                if (target_node == fruit_node)
                 {
+                    is_score = true;
+                }
 
-                    bool is_score = false;
+                Node prev_node = player_node;
+                available_nodes.Add(prev_node);
 
-                    if (target_node == fruit_node)
+                if (is_score)
+                {
+                    tail.Add(create_tail_node(prev_node.x, prev_node.y));
+                    available_nodes.Remove(prev_node);
+                }
+
+                move_tail();
+
+                place_player_object(player_obj, target_node.world_position);
+                player_node = target_node;
+                available_nodes.Remove(player_node);
+
+                if (is_score)
+                {
+                    current_score++;
+                    if (current_score > highest_score)
+                        highest_score = current_score;
+
+                    on_score.Invoke();
+
+                    if (available_nodes.Count > 0)
                     {
-                        is_score = true;
-                    }
-
-                    Node prev_node = player_node;
-                    available_nodes.Add(prev_node);
-
-                    if (is_score)
-                    {
-                        tail.Add(create_tail_node(prev_node.x, prev_node.y));
-                        available_nodes.Remove(prev_node);
-                    }
-
-                    move_tail();
-
-                    place_player_object(player_obj, target_node.world_position);
-                    player_node = target_node;
-                    available_nodes.Remove(player_node);
-
-                    if (is_score)
-                    {
-                        current_score++;
-                        if (current_score > highest_score)
-                            highest_score = current_score;
-
-                        on_score.Invoke();
-
-                        if (available_nodes.Count > 0)
-                        {
-                            random_place_apple();
-                        }
-                        else
-                        {
-                            // you won
-                        }
+                        random_place_apple();
                     }
                 }
             }
+            send_data();
         }
 
         void move_tail()
@@ -431,7 +353,7 @@ namespace SA
 
         #region Utilities
 
-        void send_receive_data()
+        void receive_data()
         {
             NetworkStream nw_stream = client.GetStream();
             byte[] buffer = new byte[client.ReceiveBufferSize];
@@ -439,33 +361,28 @@ namespace SA
             int bytes_read = nw_stream.Read(buffer, 0, client.ReceiveBufferSize);
             string data_received = Encoding.UTF8.GetString(buffer, 0, bytes_read);
 
-            if (data_received != null)
-            {
-                received_direction = string_to_vector(data_received);
-                print("received direction data");
-
-                string fx = fruit_node.x.ToString(), fy = fruit_node.y.ToString();
-
-                byte[] my_write_buffer = Encoding.ASCII.GetBytes(fx+","+fy);
-                nw_stream.Write(my_write_buffer, 0, my_write_buffer.Length);
-                flag = false;
-            }
+            if (data_received != null) received_direction = string_to_vector(data_received);
+        }
+        
+        void send_data()
+        {
+            NetworkStream nw_stream = client.GetStream();
+            string state = get_state();
+            byte[] my_write_buffer = Encoding.ASCII.GetBytes(state);
+            nw_stream.Write(my_write_buffer, 0, my_write_buffer.Length);
         }
 
         public static Vector3 string_to_vector(string s_vector)
         {
             if (s_vector.StartsWith("(") && s_vector.EndsWith(")"))
-            {
                 s_vector = s_vector.Substring(1, s_vector.Length - 2);
-            }
 
             string[] s_array = s_vector.Split(',');
 
             Vector3 result = new Vector3(
-                float.Parse(s_array[0]),
-                float.Parse(s_array[1]),
-                float.Parse(s_array[2]));
-
+                int.Parse(s_array[0]),
+                int.Parse(s_array[1]),
+                int.Parse(s_array[2]));
             return result;
         }
 
@@ -477,20 +394,42 @@ namespace SA
 
             client = listener.AcceptTcpClient();
 
-            flag = false;
-            running = true;
-            while (running)
-            {
-                if(flag) 
-                    send_receive_data();
-            }
-            listener.Stop();
+            if (running == false) listener.Stop();
+        }
+
+        string get_state()
+        {
+            get_direction();
+
+            string a = ((right && is_collision(player_node.x + 1, player_node.y)) || 
+                       (left && is_collision(player_node.x - 1, player_node.y)) ||
+                       (up && is_collision(player_node.x, player_node.y + 1)) ||
+                       (down && is_collision(player_node.x, player_node.y - 1))) ? "1" : "0";
+            string b = ((up && is_collision(player_node.x + 1, player_node.y)) ||
+                      (down && is_collision(player_node.x - 1, player_node.y)) ||
+                      (left && is_collision(player_node.x, player_node.y + 1)) ||
+                      (right && is_collision(player_node.x, player_node.y - 1))) ? "1" : "0";
+            string c = ((down && is_collision(player_node.x + 1, player_node.y)) ||
+                      (up && is_collision(player_node.x - 1, player_node.y)) ||
+                      (right && is_collision(player_node.x, player_node.y + 1)) ||
+                      (left && is_collision(player_node.x, player_node.y - 1))) ? "1" : "0";
+            string d = (left) ? "1" : "0";
+            string e = (right) ? "1" : "0";
+            string f = (up) ? "1" : "0";
+            string g = (down) ? "1" : "0";
+            string h = (fruit_node.x < player_node.x) ? "1" : "0";
+            string i = (fruit_node.x > player_node.x) ? "1" : "0";
+            string j = (fruit_node.y < player_node.y) ? "1" : "0";
+            string k = (fruit_node.y > player_node.y) ? "1" : "0";
+            string l = (is_gameover) ? "1" : "0";
+            string m = (is_score) ? "1" : "0";
+
+            return a + "," + b + "," + c + "," + d + "," + e + "," + f + "," + g + "," + h + "," + i + "," + j + "," + k + "," + l + "," + m;
         }
 
         public void gameover()
         {
             is_gameover = true;
-            is_first_input = false;
         }
 
         public void update_score()
@@ -499,39 +438,12 @@ namespace SA
             highest_score_text.text = highest_score.ToString();
         }
 
-        bool is_opposite(Direction d)
+        bool is_collision(int x, int y)
         {
-            switch (d)
-            {
-                default:
-                case Direction.up:
-                    if (cur_direction == Direction.down)
-                        return true;
-                    return false;
-                case Direction.down:
-                    if (cur_direction == Direction.up)
-                        return true;
-                    return false;
-                case Direction.left:
-                    if (cur_direction == Direction.right)
-                        return true;
-                    return false;
-                case Direction.right:
-                    if (cur_direction == Direction.left)
-                        return true;
-                    return false;
-            }
-        }
+            if (x < 0 || x > max_width - 1 || y < 0 || y > max_height - 1) return true;
 
-        bool is_tail_node(Node n)
-        {
-            for(int i=0; i<tail.Count; i++)
-            {
-                if(tail[i].node == n)
-                {
-                    return true;
-                }
-            }
+            for (int i=0; i<tail.Count; i++)
+                if((tail[i].node.x, tail[i].node.y) == (x,y)) return true;
 
             return false;
         }
@@ -552,8 +464,6 @@ namespace SA
 
         Node get_node(int x, int y)
         {
-            if (x < 0 || x > max_width - 1 || y < 0 || y > max_height - 1) 
-                return null;
             return grid[x, y];
         }
 
