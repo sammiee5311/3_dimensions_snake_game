@@ -21,8 +21,10 @@ image_tracking with distorted images by using head pose(yaw, roll and pitch). <b
 + inner_base_height_start = height // 4
 + inner_base_height_ebd = height // 4 * 3
 
+[2d](https://github.com/sammiee5311/3_dimension_snake_game/tree/main/2d_practice)
+
 ### Todo
-+ 3 dimention snake game
+[] 3 dimention snake game
 
 ### reference
 
