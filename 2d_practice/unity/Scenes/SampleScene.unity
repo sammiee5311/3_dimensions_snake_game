@@ -908,8 +908,8 @@ MonoBehaviour:
   move_rate: 0.15
   current_score_text: {fileID: 109988873}
   highest_score_text: {fileID: 1001497044}
-  IP: 192.168.25.33
-  PORT: 15402
+  IP: 
+  PORT: 12345
   on_start:
     m_PersistentCalls:
       m_Calls:
