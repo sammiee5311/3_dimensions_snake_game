@@ -51,8 +51,8 @@ namespace SA
         TcpListener listener;
         TcpClient client;
 
-        public string IP = "192.168.0.18";
-        public int PORT = 15402, episodes = 0;
+        public string IP = "";
+        public int PORT = 12345, episodes = 0;
 
         private Vector3 cur_pos, target_pos;
 
@@ -72,7 +72,6 @@ namespace SA
         }
 
         public UnityEvent on_start;
-        public UnityEvent on_gameover;
         public UnityEvent first_input;
         public UnityEvent on_score;
 
@@ -278,18 +277,15 @@ namespace SA
                     break;
             }
 
-            if (is_collision(player_node.x + x, player_node.y + y))
-                is_gameover = true;
+            if (is_collision(player_node.x + x, player_node.y + y)) is_gameover = true;
+                
             else
             {
                 Node target_node = get_node(player_node.x + x, player_node.y + y);
 
                 is_score = false;
 
-                if (target_node == fruit_node)
-                {
-                    is_score = true;
-                }
+                if (target_node == fruit_node) is_score = true;
 
                 Node prev_node = player_node;
                 available_nodes.Add(prev_node);
@@ -309,18 +305,15 @@ namespace SA
                 if (is_score)
                 {
                     current_score++;
-                    if (current_score > highest_score)
-                        highest_score = current_score;
+
+                    if (current_score > highest_score) highest_score = current_score;
 
                     on_score.Invoke();
 
-                    if (available_nodes.Count > 0)
-                    {
-                        random_place_apple();
-                    }
+                    if (available_nodes.Count > 0) random_place_apple();
                 }
             }
-            send_data();
+            send_data(); // train with send_data(), test without send_data() 
         }
 
         void move_tail()
