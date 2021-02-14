@@ -1,4 +1,4 @@
-# 2 dimension
+# 2 dimensions
 
 This is practice for communicating between python and unity.
 
@@ -9,7 +9,7 @@ This is practice for communicating between python and unity.
 
 ## How to use
 
-+ #### line 68 in train.py [code](https://github.com/sammiee5311/3_dimension_snake_game/blob/2cebb3ea3ac2c5c5846d7d0a9948dc83a6c20c9e/2d_practice/python/train.py#L68)
++ #### line 68 in train.py [code](https://github.com/sammiee5311/3_dimensions_snake_game/blob/2cebb3ea3ac2c5c5846d7d0a9948dc83a6c20c9e/2d_practice/python/train.py#L68)
 
     ``` python
 
@@ -17,7 +17,7 @@ This is practice for communicating between python and unity.
 
     ```
 
-+ #### line 54,55 in basic.cs [code](https://github.com/sammiee5311/3_dimension_snake_game/blob/2cebb3ea3ac2c5c5846d7d0a9948dc83a6c20c9e/2d_practice/unity/Scripts/basic.cs#L54)
++ #### line 54,55 in basic.cs [code](https://github.com/sammiee5311/3_dimensions_snake_game/blob/2cebb3ea3ac2c5c5846d7d0a9948dc83a6c20c9e/2d_practice/unity/Scripts/basic.cs#L54)
 
     ``` c#
 
@@ -26,7 +26,7 @@ This is practice for communicating between python and unity.
 
     ```
 
-+ #### line 316 in basic.cs [code](https://github.com/sammiee5311/3_dimension_snake_game/blob/2cebb3ea3ac2c5c5846d7d0a9948dc83a6c20c9e/2d_practice/unity/Scripts/basic.cs#L316)
++ #### line 316 in basic.cs [code](https://github.com/sammiee5311/3_dimensions_snake_game/blob/2cebb3ea3ac2c5c5846d7d0a9948dc83a6c20c9e/2d_practice/unity/Scripts/basic.cs#L316)
 
     + If you want to try to train with other hyperparameters, leave the 'send_data()' code and change learning_rate, epsilon etc. <br>
     + Otherwise, please delete the line.

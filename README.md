@@ -1,11 +1,11 @@
-# 3 dimension snake game (In Progess)
+# 3 dimensions snake game (In Progess)
 
-3 dimension snake game by using kinect azure.
+3 dimensions snake game by using kinect azure.
 
 ## Todo
-- [x] [2 dimention snake game](https://github.com/sammiee5311/3_dimension_snake_game/tree/main/2d_practice)
+- [x] [2 dimensions snake game](https://github.com/sammiee5311/3_dimensions_snake_game/tree/main/2d_practice)
 - ![](./images/test.gif)
-- [ ] 3 dimention snake game
+- [ ] 3 dimensions snake game
 
 ### Reference
 
