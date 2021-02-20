@@ -10,10 +10,11 @@ public class SnakeMove : MonoBehaviour
     [HideInInspector]
     public float step_length = 2;
 
-    public int movement_frequency = 50;
+    [HideInInspector]
+    public int movement_frequency = 1;
 
     private float counter;
-    private bool move;
+    private bool move, gameover;
 
     public enum PlayerDirection
     {
@@ -29,10 +30,11 @@ public class SnakeMove : MonoBehaviour
     [SerializeField]
     private GameObject tailPrefab;
 
-    private List<Vector3> delta_position;
-    private List<Rigidbody> nodes;
-    private Rigidbody main_body, head_body;
+    public List<Vector3> delta_position;
+    public List<Rigidbody> nodes;
     private Transform tr;
+    public static Rigidbody main_body, head_body;
+    public static int max_width = 10, max_height = 8, max_depth = 15, min_depth = 5;
 
     private bool create_node_at_tail;
 
@@ -71,7 +73,9 @@ public class SnakeMove : MonoBehaviour
 
     void InitSnakeNodes()
     {
-        head_body = main_body;
+        nodes = new List<Rigidbody>();
+        nodes.Add(main_body);
+        head_body = nodes[0];
     }
 
     void SetDirectionRandom()
@@ -92,8 +96,27 @@ public class SnakeMove : MonoBehaviour
         Vector3 parentPos = head_body.position;
         Vector3 prevPosition;
 
-        /*main_body.position = main_body.position + dPosition;*/
         head_body.position = head_body.position + dPosition;
+
+        gameover = IsCollision();
+
+        if (gameover) print("game over");
+
+        if (Fruit.fruit_pos == head_body.position)
+        {
+            while (Fruit.fruit_pos == head_body.position)
+            {
+                Fruit.fruit_pos = new Vector3(
+                    Random.Range(-max_width, max_width - 2)*2,
+                    Random.Range(-max_height, max_height - 2)*2,
+                    Random.Range(min_depth, max_depth - 2)*2);
+            }
+
+            GameObject newNode = Instantiate(tailPrefab, nodes[nodes.Count - 1].position, Quaternion.identity);
+
+            newNode.transform.SetParent(transform, true);
+            nodes.Add(newNode.GetComponent<Rigidbody>());
+        }
 
         for (int i = 1; i < nodes.Count; i++)
         {
@@ -102,18 +125,26 @@ public class SnakeMove : MonoBehaviour
             nodes[i].position = parentPos;
             parentPos = prevPosition;
         }
+    }
 
-/*        if (create_node_at_tail)
+    bool IsCollision()
+    {
+        int x = (int)head_body.position.x, y = (int)head_body.position.y, z = (int)head_body.position.z;
+
+        if (x < -max_width*2 || x > max_width*2 || y < -max_height*2 || y > max_height*2 || z < min_depth*2 || z > max_depth*2) return true;
+
+        for (int i = 1; i < nodes.Count; i++)
         {
+            if ((nodes[i].position.x, nodes[i].position.y, nodes[i].position.z) == (x, y, z)) return true;
+        }
 
-        }*/
+        return false;
     }
 
     void CheckMovementFrequency()
     {
         counter += Time.deltaTime;
-        print(movement_frequency);
-        if (counter >= movement_frequency)
+        if (counter >= movement_frequency*0.7f)
         {
             counter = 0f;
             move = true;

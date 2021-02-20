@@ -15,13 +15,11 @@ public class PlayerInput : MonoBehaviour
         Dimension
     }
 
-    // Start is called before the first frame update
     void Awake()
     {
         SnakeMove = GetComponent<SnakeMove>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         horizontal = 0;
@@ -49,7 +47,7 @@ public class PlayerInput : MonoBehaviour
             horizontal = 0;
             dimension = 0;
         }
-        else
+        else if(dimension != 0)
         {
             vertical = 0;
             horizontal = 0;
@@ -69,7 +67,7 @@ public class PlayerInput : MonoBehaviour
             SnakeMove.SetInputDirection((horizontal == 1) ?
                                                     SnakeMove.PlayerDirection.RIGHT : SnakeMove.PlayerDirection.LEFT);
         }
-        else
+        else if(dimension != 0)
         {
             SnakeMove.SetInputDirection((dimension == 1) ?
                                                     SnakeMove.PlayerDirection.POS_DIM : SnakeMove.PlayerDirection.NEG_DIM);
