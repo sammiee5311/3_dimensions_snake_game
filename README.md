@@ -1,6 +1,6 @@
-# 3 dimensions snake game (In Progess)
+# 3 dimensions snake game
 
-3 dimensions snake game by using kinect azure.
+It is a game that is made easier for users to see the locations of the fruit and the snake by using Azure Kinect.
 
 ## Requiremnets
 - EMGU.CV
