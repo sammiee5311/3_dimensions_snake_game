@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlayerInput : MonoBehaviour
 {
     private SnakeMove SnakeMove;
-
     private int horizontal = 0, vertical = 0, dimension = 0;
 
     public enum Axis
