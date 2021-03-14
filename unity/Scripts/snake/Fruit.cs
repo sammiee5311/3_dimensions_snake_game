@@ -18,7 +18,7 @@ public class Fruit : MonoBehaviour
 
     public void PlaceFruit()
     {
-        fruit_pos = new Vector3(4,4,20);
+        fruit_pos = new Vector3(SnakeMove.SIZE, SnakeMove.SIZE, 10);
         transform.position = fruit_pos;
     }
 }
