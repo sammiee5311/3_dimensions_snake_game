@@ -6,12 +6,12 @@ public class SnakeMove : MonoBehaviour
 {
     [HideInInspector]
     public PlayerDirection direction;
+    
+    public StartMenu StartMenu;
 
-    [HideInInspector]
-    public float step_length = 2;
+    public static int SIZE = 2;
 
-    [HideInInspector]
-    public int movement_frequency = 1;
+    public double movement_frequency = 0.8;
 
     private float counter;
     private bool move, gameover;
@@ -34,9 +34,10 @@ public class SnakeMove : MonoBehaviour
     public List<Rigidbody> nodes;
     private Transform tr;
     public static Rigidbody main_body, head_body;
-    public static int max_width = 10, max_height = 8, max_depth = 15, min_depth = 5;
+    public static int max_width = 10, max_height = 8, max_depth = 5, min_depth = -5;
 
     private bool create_node_at_tail;
+    public int score = 0;
 
     void Awake()
     {
@@ -48,12 +49,12 @@ public class SnakeMove : MonoBehaviour
 
         delta_position = new List<Vector3>()
         {
-            new Vector3(-2, 0, 0),  // LEFT
-            new Vector3(0, 2, 0),  // UP
-            new Vector3(2, 0, 0),  // RIGHT
-            new Vector3(0, -2, 0), // DOWN
-            new Vector3(0, 0, 2),  // POS DIMENSION
-            new Vector3(0, 0, -2)  // NEG DIMENSION
+            new Vector3(-SIZE, 0, 0),  // LEFT
+            new Vector3(0, SIZE, 0),  // UP
+            new Vector3(SIZE, 0, 0),  // RIGHT
+            new Vector3(0, -SIZE, 0), // DOWN
+            new Vector3(0, 0, SIZE),  // POS DIMENSION
+            new Vector3(0, 0, -SIZE)  // NEG DIMENSION
         };
     }
 
@@ -100,16 +101,17 @@ public class SnakeMove : MonoBehaviour
 
         gameover = IsCollision();
 
-        if (gameover) print("game over");
+        if (gameover) StartMenu.Setup(score);
 
         if (Fruit.fruit_pos == head_body.position)
         {
             while (Fruit.fruit_pos == head_body.position)
             {
+                score++;
                 Fruit.fruit_pos = new Vector3(
-                    Random.Range(-max_width, max_width - 2)*2,
-                    Random.Range(-max_height, max_height - 2)*2,
-                    Random.Range(min_depth, max_depth - 2)*2);
+                    Random.Range(-max_width+1, max_width - 1)* SIZE,
+                    Random.Range(-max_height+1, max_height - 1)* SIZE,
+                    Random.Range(min_depth+1, max_depth - 1)* SIZE);
             }
 
             GameObject newNode = Instantiate(tailPrefab, nodes[nodes.Count - 1].position, Quaternion.identity);
@@ -131,7 +133,7 @@ public class SnakeMove : MonoBehaviour
     {
         int x = (int)head_body.position.x, y = (int)head_body.position.y, z = (int)head_body.position.z;
 
-        if (x < -max_width*2 || x > max_width*2 || y < -max_height*2 || y > max_height*2 || z < min_depth*2 || z > max_depth*2) return true;
+        if (x < -max_width* SIZE || x > max_width* SIZE || y < -max_height* SIZE || y > max_height* SIZE || z < min_depth* SIZE || z > max_depth* SIZE) return true;
 
         for (int i = 1; i < nodes.Count; i++)
         {

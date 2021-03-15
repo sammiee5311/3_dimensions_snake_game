@@ -2,6 +2,7 @@
 /// Asym frustum.
 /// based on http://paulbourke.net/stereographics/stereorender/
 /// and http://answers.unity3d.com/questions/165443/asymmetric-view-frusta-selective-region-rendering.html
+/// from https://github.com/RymOUENZAR/Parallax
 /// </summary>
 using UnityEngine;
 using System.Collections;

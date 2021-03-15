@@ -10,10 +10,10 @@ namespace K4AdotNet.Samples.Unity
     {
         private void Awake()
         {
-            PrintHeadPosition();
+            FindHeadPosition();
         }
 
-        private void PrintHeadPosition()
+        private void FindHeadPosition()
         {
             var IsSkeleton = FindObjectOfType<SkeletonProvider>();
             if (IsSkeleton != null)
@@ -42,10 +42,6 @@ namespace K4AdotNet.Samples.Unity
                  -pos.X * 0.001f * 59f,
                  -pos.Y * 0.001f * 39f,
                  -pos.Z * 0.065f);
-            /*           return new Vector3(
-                           ((pos.X * 0.5f / (1980 - 120.0f)) - 0.5f) * 38,
-                           -((pos.Y * 0.5f / (1080 - 120.0f)) - 0.5f) * 22,
-                           -pos.Z * 0.05f);*/
         }
     }
 }
