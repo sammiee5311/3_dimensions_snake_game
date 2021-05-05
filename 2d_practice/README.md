@@ -1,4 +1,4 @@
-# 2 dimensions
+# Reinforcement Learning in 2 dimensions
 
 This is practice for communicating between python and unity.
 

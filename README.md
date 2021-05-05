@@ -11,7 +11,7 @@ It is a game that is made easier for users to see the locations of the fruit and
 ![](./images/3d_test.gif)
 
 ## Todo
-- [x] [2 dimensions snake game](https://github.com/sammiee5311/3_dimensions_snake_game/tree/main/2d_practice)
+- [x] [Reinforcement Learning in 2 dimensions snake game](https://github.com/sammiee5311/3_dimensions_snake_game/tree/main/2d_practice)
 - ![](./images/test.gif)
 - [ ] Reinforcement Learning in 3 dimensions snake game
 
